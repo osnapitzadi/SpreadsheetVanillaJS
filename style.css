@@ -1,0 +1,8 @@
+.cell {
+    width: 10px;
+}
+
+.table td, .table th {
+    margin: 0px;
+    padding: 0px;
+}
