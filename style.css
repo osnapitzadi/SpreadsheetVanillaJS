@@ -1,8 +1,49 @@
-.cell {
-    width: 10px;
+html{
+    font:0.75em/1.5 sans-serif;
+    color:#333;
+    background-color:#fff;
+    padding:0px;
+    margin: 0px;
 }
 
-.table td, .table th {
-    margin: 0px;
+/* Tables */
+table{
+    width:100%;
+    margin-bottom:1em;
+    border-collapse: collapse;
+}
+th{
+    font-weight:bold;
+    background-color:#ddd;
+}
+th,
+td{
+    border:1px solid #ccc;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    text-align: center;
+}
+
+input {
     padding: 0px;
+    border-width: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+input:focus {
+    background-color: lightskyblue;
+}
+
+.selectedCell {
+    border: 1px solid #ddd;
+    width: 10%;
+    height: 30px;
+}
+
+#formula {
+    border: 1px solid #ddd;
+    width: 100%;
+    height: 30px; 
 }
