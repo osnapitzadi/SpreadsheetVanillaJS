@@ -20,7 +20,7 @@ const init = () => {
         var row = document.querySelector("#table").insertRow(-1);
         for (var j=0; j<11; j++) {
             var letter = String.fromCharCode("A".charCodeAt(0)+j-1);
-            row.insertCell(-1).innerHTML = i&&j ? `<input id='${letter+i}' value='${i+j}' class='cell'/>` : i||letter;
+            row.insertCell(-1).innerHTML = i&&j ? `<div id='${letter+i}' class='cell'>${i+j}</div>` : i||letter;
         }
     }
     updateArray();
@@ -81,35 +81,45 @@ const clearBtn = () => {
 // event listeners 
 document.querySelector('#table').addEventListener("click", selectedCell, false);
 document.querySelector('#table').addEventListener("change", selectedCell, false);
-document.querySelector('#table').addEventListener("change", cellEdit, false);
-document.getElementById("selectedCell").addEventListener('change', indicatorChange, false);
 document.querySelector('#formula').addEventListener('change', cellEdit, false);
 
 // event handlers
 function selectedCell(event) {
     // to prevent an undefined value by hitting a not cell in a table
+    console.log(event.target.id);
     if (event.target.localName == 'td') {
         console.log("you've hitted a <td>")
         return;
     }  else {
+        // identify a cell ID and assign to cell indicator
         var indicator = document.getElementById('selectedCell');
         indicator.value = event.target.id;
-        document.getElementById('formula').value = event.target.value;
+
+        // getting a 2d table postition for same cell
+        var tblIndex = event.target.id;
+        var iString = tblIndex.substr(0, 1);
+        var i = iString.charCodeAt(0)-65;
+        var j = tblIndex.substr(1, 2);
+        j = parseFloat(j)-1;
+
+        // Parce data from tblArray to formula input  
+        document.getElementById('formula').value = tblArray[j][i];
     }
 }
 
-// TODO make it work
-function indicatorChange() {
-    let indicator = document.getElementById('selectedCell').value;
-    document.getElementById(indicator).focus;
-}
-
 function cellEdit() {
-    let indicator = document.getElementById('selectedCell').value;
-    let editInput = document.getElementById('formula').value;
-    document.getElementById(indicator).value = editInput;
-    updateArray();
+    // converting to a 2d array cell id
+    var iString = tblIndex.substr(0, 1);
+    var i = iString.charCodeAt(0)-65;
+    var j = tblIndex.substr(1, 2);
+    j = parseFloat(j)-1;
+
+    let editedInput = document.getElementById('formula').value;
+    tblArray[j][i] = editedInput;
+    // updateArray();
     recalculate();
+    let indicator = document.getElementById('selectedCell').value;
+    document.getElementById(indicator).innerText = tblArray[j][i];
 }
 
 // determines if user entered a formula such as =SUM(A1:B2)
@@ -136,6 +146,7 @@ function recalculate(){
             if (tblArray[i][j].indexOf("=SUM") !== -1){
                 // apply the formula for cell at row/column i/j
                 calculateCell(i, j);
+                return;
             };
         };
     };
@@ -183,10 +194,10 @@ function calculateCell(row, column){
         var cellID = `${letter}${row+1}`;
         var ref = document.getElementById(cellID);
         console.log(cellID);
-        ref.value = sumTotal;
+        ref.innerText = sumTotal;
 
-        //update formula input
-        document.getElementById('formula').value = sumTotal;
+        // //update formula input
+        // document.getElementById('formula').value = sumTotal;
     }
 }
 
@@ -210,7 +221,7 @@ function updateArray() {
         tblArray[i] = [];
         for (var j = 0; j < TBLCOLUMNS; j++) {
             var letter = String.fromCharCode("A".charCodeAt(0)+j);
-            var inputValue = document.getElementById(letter+(i+1)).value;
+            var inputValue = document.getElementById(letter+(i+1)).innerText;
             tblArray[i][j] = inputValue;
         }
     }
