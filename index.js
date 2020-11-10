@@ -82,8 +82,21 @@ const clearBtn = () => {
 document.querySelector('#table').addEventListener("click", selectedCell, false);
 document.querySelector('#table').addEventListener("change", selectedCell, false);
 document.querySelector('#formula').addEventListener('change', cellEdit, false);
+document.querySelector('#selectedCell').addEventListener("change", changeCellIndicator, false);
+
 
 // event handlers
+function changeCellIndicator() {
+    var cell = document.getElementById("selectedCell").value;
+    var formula = document.getElementById("formula");
+    
+    // to 2d table id cell
+    var iString = cell.substr(0, 1);
+    var i = iString.charCodeAt(0)-65;
+    var j = cell.substr(1, 2);
+    j = parseFloat(j)-1;
+    formula.value = tblArray[j][i];
+}
 function selectedCell(event) {
     // to prevent an undefined value by hitting a not cell in a table
     console.log(event.target.id);
@@ -109,6 +122,7 @@ function selectedCell(event) {
 
 function cellEdit() {
     // converting to a 2d array cell id
+    var tblIndex = document.getElementById('selectedCell').value;
     var iString = tblIndex.substr(0, 1);
     var i = iString.charCodeAt(0)-65;
     var j = tblIndex.substr(1, 2);
@@ -119,7 +133,8 @@ function cellEdit() {
     // updateArray();
     recalculate();
     let indicator = document.getElementById('selectedCell').value;
-    document.getElementById(indicator).innerText = tblArray[j][i];
+    // document.getElementById(indicator).innerText = tblArray[j][i];
+    console.table(tblArray);
 }
 
 // determines if user entered a formula such as =SUM(A1:B2)
@@ -146,8 +161,11 @@ function recalculate(){
             if (tblArray[i][j].indexOf("=SUM") !== -1){
                 // apply the formula for cell at row/column i/j
                 calculateCell(i, j);
-                return;
-            };
+            } else if (tblArray[i][j]) {
+                var letter = String.fromCharCode("A".charCodeAt(0)+j);
+                var idNeeded = letter+(i+1);
+                document.getElementById(idNeeded).innerText = tblArray[i][j];
+            }
         };
     };
 };

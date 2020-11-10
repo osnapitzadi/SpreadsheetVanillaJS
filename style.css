@@ -54,4 +54,9 @@ input:focus {
     display: flex;
     align-items: center;
     text-align: center;
+    cursor: cell;
+}
+
+.cell:hover {
+    background-color: #b7e4c7;
 }
