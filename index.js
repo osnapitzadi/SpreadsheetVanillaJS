@@ -2,6 +2,9 @@
 let phoneNums = "0123456789-() ";
 let alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
 let alphaNums = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
+let tblArray = [];
+const TBLROWS = 20;
+const TBLCOLUMNS = 10;
 
 // the current set of allowable characters or numbers
 var filterSet = "";
@@ -23,50 +26,50 @@ const init = () => {
     updateArray();
 }
 
-// function filterText(ref) {
-//     // choose the value of filterSet based
-//     // on the text box that sent the character
-//     if (ref.id === "txtPhoneNum") {
-//         filterSet = phoneNums;
-//     }
+function filterText(ref) {
+    // choose the value of filterSet based
+    // on the text box that sent the character
+    if (ref.id === "txtPhoneNum") {
+        filterSet = phoneNums;
+    }
                     
-//     // IE11 uses the .preventDefault()
-//     if (isIE11) {
-//         if (window.event.keyCode === 13) {
-//             alert("You pressed the enter key");
-//         }
-//         else if (!nCharOK(window.event.keyCode)) {
-//             window.event.preventDefault();
-//         }
-//     }
-//     else {
-//         // Chrome, Edge and Safari use returnValue
-//         if (window.event.keyCode === 13) {
-//             alert("You pressed the enter key");
-//         }
-//         else if (!nCharOK(window.event.keyCode)) {
-//             window.event.returnValue = null;
-//         }
-//     }
-// }
+    // IE11 uses the .preventDefault()
+    if (isIE11) {
+        if (window.event.keyCode === 13) {
+            alert("You pressed the enter key");
+        }
+        else if (!nCharOK(window.event.keyCode)) {
+            window.event.preventDefault();
+        }
+    }
+    else {
+        // Chrome, Edge and Safari use returnValue
+        if (window.event.keyCode === 13) {
+            alert("You pressed the enter key");
+        }
+        else if (!nCharOK(window.event.keyCode)) {
+            window.event.returnValue = null;
+        }
+    }
+}
 
 // // filter the currently entered character to see that it is part
 // // of the acceptable character set
-// function nCharOK(c) {
-//     var ch = (String.fromCharCode(c));
-//     ch = ch.toUpperCase();
+function nCharOK(c) {
+    var ch = (String.fromCharCode(c));
+    ch = ch.toUpperCase();
 
-//     // if the current character is not found in the set of all numbers
-//     // set the flag variable to fail
-//     if (filterSet.indexOf(ch) !== -1) {
-//         return true;
-//     }
-//     else {
-//         return false;
-//     }
-// }
+    // if the current character is not found in the set of all numbers
+    // set the flag variable to fail
+    if (filterSet.indexOf(ch) !== -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
-// Functions
+// button "clear"
 const clearBtn = () => {
     let allInputs = document.querySelectorAll("input");
     for (let index = 0; index < allInputs.length; index++) {
@@ -84,6 +87,7 @@ document.querySelector('#formula').addEventListener('change', cellEdit, false);
 
 // event handlers
 function selectedCell(event) {
+    // to prevent an undefined value by hitting a not cell in a table
     if (event.target.localName == 'td') {
         console.log("you've hitted a <td>")
         return;
@@ -108,33 +112,6 @@ function cellEdit() {
     recalculate();
 }
 
-//sum formula working 
-
-// some Design Considerations:
-
-// 1. Use a JavaScript 2d array to store all data as entered by the user, including
-//    formulas.
-   
-// 2. Map from the JS array to the HTML table every time the user changes a cell.
-//    Do this using a nested for loop and when you find a formula in the JS array,
-//    call a separate function to calculate the results of the single formula and
-//    then output that result to matching cell in the HTML table.
-
-// 3. The Local Storage (HTML5) part can be done easily by converting the JS array to JSON
-//    and then saving the JSON string to the local storage. 
-      
-// 4. The spreadsheet can be reloaded from local storage by retrieving the JSON string and then converting it to a JavaScript 2d array.
-   
-// Sample code fragments
-// Creating a JavaScript 2d array
-
-tblArray = [];
-
-var TBLROWS = 20;
-var TBLCOLUMNS = 10;
-
-
-// ********************************************************
 // determines if user entered a formula such as =SUM(A1:B2)
 // returns an array with formula components
 function getFormula(tbValue){
@@ -149,10 +126,6 @@ function getFormula(tbValue){
         return ar;
 }
 
-getFormula("SUM(A1:B2)");
-
-
-// ******************************************
 // traverse the 2d array looking for formulas
 // and then recalculate cell values
 // tblArray is the 2d JS array
@@ -162,13 +135,12 @@ function recalculate(){
             // check to see if table element is a formula
             if (tblArray[i][j].indexOf("=SUM") !== -1){
                 // apply the formula for cell at row/column i/j
-                calculateCell(i, j); 
-            }
-        }
-    }
-}
+                calculateCell(i, j);
+            };
+        };
+    };
+};
 
-// ***********************************************************************
 // if we find a formula, parse it to find the from (row and column) and
 // the to (row and column) and then perform the calculation by getting all
 // the numeric values from the 2d array and generating a total
@@ -218,7 +190,6 @@ function calculateCell(row, column){
     }
 }
 
-// ***********************************************
 // determines if this is an acceptable float value
 function isFloat(s){
 	var ch = "";
@@ -233,7 +204,7 @@ function isFloat(s){
 	return true;
 }
 
-
+// upadtind array data from dom
 function updateArray() {
     for (var i = 0; i < TBLROWS; i++){
         tblArray[i] = [];
