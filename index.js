@@ -20,6 +20,7 @@ const init = () => {
         var row = document.querySelector("#table").insertRow(-1);
         for (var j=0; j<11; j++) {
             var letter = String.fromCharCode("A".charCodeAt(0)+j-1);
+            // update content of div for test
             row.insertCell(-1).innerHTML = i&&j ? `<div id='${letter+i}' class='cell'>${i+j}</div>` : i||letter;
         }
     }
@@ -69,20 +70,13 @@ function nCharOK(c) {
     }
 }
 
-// button "clear"
-const clearBtn = () => {
-    let allInputs = document.querySelectorAll("input");
-    for (let index = 0; index < allInputs.length; index++) {
-        const element = allInputs[index];
-        element.value = '';
-    }   
-}
 
 // event listeners 
 document.querySelector('#table').addEventListener("click", selectedCell, false);
 document.querySelector('#table').addEventListener("change", selectedCell, false);
 document.querySelector('#formula').addEventListener('change', cellEdit, false);
 document.querySelector('#selectedCell').addEventListener("change", changeCellIndicator, false);
+
 
 
 // event handlers
@@ -117,6 +111,7 @@ function selectedCell(event) {
 
         // Parce data from tblArray to formula input  
         document.getElementById('formula').value = tblArray[j][i];
+        document.getElementById('formula').focus;
     }
 }
 
@@ -132,8 +127,6 @@ function cellEdit() {
     tblArray[j][i] = editedInput;
     // updateArray();
     recalculate();
-    let indicator = document.getElementById('selectedCell').value;
-    // document.getElementById(indicator).innerText = tblArray[j][i];
     console.table(tblArray);
 }
 
@@ -161,10 +154,29 @@ function recalculate(){
             if (tblArray[i][j].indexOf("=SUM") !== -1){
                 // apply the formula for cell at row/column i/j
                 calculateCell(i, j);
+            } else if (isCellRef(tblArray[i][j])) {
+                // if it is a litteral to cell Reference 
+                var focusedCell = document.getElementById('selectedCell').value;
+
+                // litteral id without "="
+                var cellLitteralID = tblArray[i][j].substr(1);
+
+                // literal reference
+                var litteralContent = document.getElementById(cellLitteralID).textContent;
+
+                // assign value from cell to cell with literal
+                document.getElementById(focusedCell).innerText = litteralContent;
+
             } else if (tblArray[i][j]) {
+                // if there are somthing
                 var letter = String.fromCharCode("A".charCodeAt(0)+j);
                 var idNeeded = letter+(i+1);
                 document.getElementById(idNeeded).innerText = tblArray[i][j];
+            } else {
+                // in case formula was left blank or false
+                var letter = String.fromCharCode("A".charCodeAt(0)+j);
+                var idNeeded = letter+(i+1);
+                document.getElementById(idNeeded).innerText = "";
             }
         };
     };
@@ -201,9 +213,22 @@ function calculateCell(row, column){
         for (var i = fromRowIndex; i <= toRowIndex; i++){
             for (var j = fromColIndex; j <= toColIndex; j++){
                 // make sure we have a number for addition
-                if (isFloat(tblArray[i][j]))
+                if (isCellRef(tblArray[i][j])) {
+                    // in case cell is a litteral 
+                    var el = tblArray[i][j].substr(1);
+                    var columnString1 = el.substr(0, 1);
+                    var column1 = columnString1.charCodeAt(0)-65;
+                    var row1 = el.substr(1, 2);
+                    row1 = parseFloat(row1)-1;
+                    sumTotal += parseFloat(tblArray[row1][column1]);
+                } else if (tblArray[i][j]) {
+                    // in case there are somthing
                     sumTotal += parseFloat(tblArray[i][j]);
-            }
+                } else {
+                    // in case some cell are blank
+                    sumTotal += 0;
+                }
+            }   
         }
 
         // we now have the total... insert into spreadsheet cell
@@ -213,25 +238,9 @@ function calculateCell(row, column){
         var ref = document.getElementById(cellID);
         console.log(cellID);
         ref.innerText = sumTotal;
-
-        // //update formula input
-        // document.getElementById('formula').value = sumTotal;
     }
 }
 
-// determines if this is an acceptable float value
-function isFloat(s){
-	var ch = "";
-	var justFloat = "0123456789.";
-	
-	for (var i = 0; i < s.length; i++){
-		ch = s.substr(i, 1);
-	
-		if (justFloat.indexOf(ch) == -1)
-			return false;
-	}
-	return true;
-}
 
 // upadtind array data from dom
 function updateArray() {
@@ -243,5 +252,32 @@ function updateArray() {
             tblArray[i][j] = inputValue;
         }
     }
+    // for compare a 2d table to a dom table
     console.table(tblArray);
+}
+
+
+// button "clear"
+const clearBtn = () => {
+    // clear 2d table
+    for (var i = 0; i < TBLROWS; i++){
+        tblArray[i] = [];
+        for (var j = 0; j < TBLCOLUMNS; j++) {
+            tblArray[i][j] = "";
+        }
+    }
+    // clear all inputs
+    var allInputs = document.querySelectorAll('input');
+    for (let index = 0; index < allInputs.length; index++) {
+        const element = allInputs[index];
+        element.value = '';
+    }
+    //update dom table
+    recalculate();
+}
+
+// regex helper junction for litteral reference
+function isCellRef(data) {
+    var regexCell =  /^[=]+[a-jA-J]+([0-1]?[0-9]|20)$/;
+    return regexCell.test(data);
 }
